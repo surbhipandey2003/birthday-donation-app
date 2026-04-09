@@ -34,4 +34,14 @@ const addDonation = async (req, res) => {
   }
 };
 
-module.exports = { addDonation };
+const getDonations = async (req, res) => {
+  try {
+    const donations = await Donation.find();
+    res.json(donations);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { addDonation, getDonations};
