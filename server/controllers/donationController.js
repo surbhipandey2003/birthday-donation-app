@@ -1,5 +1,5 @@
 const Donation = require("../models/donation");
-const Campaign = require("../models/Campaign");
+const Campaign = require("../models/campaign");
 
 const addDonation = async (req, res) => {
   try {
