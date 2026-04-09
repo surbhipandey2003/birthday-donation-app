@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
 
+const BASE_URL = "https://birthday-donation-app-production.up.railway.app";
+
 function Dashboard() {
   const [campaigns, setCampaigns] = useState([]);
   const navigate = useNavigate();
@@ -19,7 +21,7 @@ function Dashboard() {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/donations/add",
+        `${BASE_URL}/api/donations`,
         { campaignId, amount },
         {
           headers: {
@@ -32,7 +34,7 @@ function Dashboard() {
       alert("Thank you for your donation ❤️");
 
       // Refresh campaigns
-      const res = await axios.get("http://localhost:5000/api/campaigns");
+      const res = await axios.get(`${BASE_URL}/api/campaigns`);
       setCampaigns(res.data);
 
     } catch (err) {
@@ -44,7 +46,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/campaigns");
+        const res = await axios.get(`${BASE_URL}/api/campaigns`);
         setCampaigns(res.data);
       } catch (err) {
         console.log(err);
