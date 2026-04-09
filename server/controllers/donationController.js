@@ -1,4 +1,4 @@
-const Donation = require("../models/Donation");
+const Donation = require("../models/donation");
 const Campaign = require("../models/Campaign");
 
 const addDonation = async (req, res) => {
