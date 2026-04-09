@@ -17,7 +17,7 @@ const campaignRoutes = require("./routes/campaignRoutes");
 app.use("/api/campaigns", campaignRoutes);
 
 const donationRoutes = require("./routes/donationRoutes");
-app.use("/api/donations", donationRoutes);
+app.use("/api", donationRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
