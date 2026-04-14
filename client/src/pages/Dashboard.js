@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-
+import { useNavigate, useLocation } from "react-router-dom";
 
 const BASE_URL = "https://birthday-donation-app-production.up.railway.app";
 
@@ -11,38 +9,52 @@ function Dashboard() {
   const navigate = useNavigate();
   const location = useLocation();
 
-
-  console.log(campaigns);
-
-  const handleDonate = async (campaignId) => {
+  // ✅ PAYMENT FUNCTION
+  const handlePayment = async (campaignId) => {
     const amount = prompt("Enter donation amount:");
-
     if (!amount) return;
 
     try {
-      await axios.post(
-        `${BASE_URL}/api/donations`,
-        { campaignId, amount },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+      // Create order
+      const { data: order } = await axios.post(
+        `${BASE_URL}/api/payment/create-order`,
+        { amount }
       );
 
-      alert("Donation Successful!");
-      alert("Thank you for your donation ❤️");
+      const options = {
+        key: "rzp_test_SbiQ9Hg8U9JPPO", 
+        amount: order.amount,
+        currency: "INR",
+        name: "Birthday Donation",
+        description: "Donation",
+        order_id: order.id,
 
-      // Refresh campaigns
-      const res = await axios.get(`${BASE_URL}/api/campaigns`);
-      setCampaigns(res.data);
+        handler: async function (response) {
+          alert("Payment successful!");
+
+          // Save donation
+          await axios.post(
+            `${BASE_URL}/api/donations`,
+            { campaignId, amount },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
+            }
+          );
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
 
     } catch (err) {
       console.log(err);
-      alert("Donation failed");
+      alert("Payment failed");
     }
   };
 
+  // ✅ FETCH CAMPAIGNS
   useEffect(() => {
     const fetchCampaigns = async () => {
       try {
@@ -57,11 +69,13 @@ function Dashboard() {
   }, [location]);
 
   return (
-    <div style={{ 
-      padding: "20px",
-      maxWidth: "1200px",
-      margin: "auto",
-     }}>
+    <div
+      style={{
+        padding: "20px",
+        maxWidth: "1200px",
+        margin: "auto",
+      }}
+    >
       <h1>🎂 Birthday Donation Dashboard</h1>
 
       <button
@@ -91,10 +105,8 @@ function Dashboard() {
                 width: "250px",
                 borderRadius: "12px",
                 boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
-                transition: "0.3s",
               }}
             >
-
               <img
                 src={c.image}
                 alt="campaign"
@@ -103,7 +115,7 @@ function Dashboard() {
                   height: "150px",
                   objectFit: "cover",
                   borderRadius: "10px",
-                  marginBottom: "10px"
+                  marginBottom: "10px",
                 }}
               />
 
@@ -111,9 +123,8 @@ function Dashboard() {
               <p>{c.description}</p>
               <p><b>Target:</b> ₹{c.goalAmount}</p>
 
-              {/* Progress */}
               <p>
-                Raised: ₹0 / ₹{c.goalAmount}
+                Raised: ₹{c.raisedAmount || 0} / ₹{c.goalAmount}
               </p>
 
               <div
@@ -135,8 +146,9 @@ function Dashboard() {
                 ></div>
               </div>
 
+              {/* ✅ DONATE BUTTON */}
               <button
-                onClick={() => handleDonate(c._id)}
+                onClick={() => handlePayment(c._id)}
                 style={{
                   marginTop: "10px",
                   padding: "10px",

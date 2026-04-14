@@ -19,6 +19,10 @@ app.use("/api/campaigns", campaignRoutes);
 const donationRoutes = require("./routes/donationRoutes");
 app.use("/api", donationRoutes);
 
+const paymentRoutes = require("./routes/payment");
+
+app.use("/api/payment", paymentRoutes);
+
 // Test Route
 app.get("/", (req, res) => {
   res.send("Birthday Donation API Running 🚀");
